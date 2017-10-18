@@ -234,7 +234,7 @@ if (NODE_ENV !== "production") {
     config.output.devtoolModuleFilenameTemplate = '[absolute-resource-path]';
     config.output.pathinfo = true;
 } else {
-    config.plugins.push(new webpack.optimize.UglifyJsPlugin({
+    /*config.plugins.push(new webpack.optimize.UglifyJsPlugin({
         mangle: {
             // this is required to ensure we don't minify Chevrotain token identifiers
             // https://github.com/SAP/chevrotain/tree/master/examples/parser/minification
@@ -242,7 +242,7 @@ if (NODE_ENV !== "production") {
                 return chevrotain.tokenName(currTok);
             })
         }
-    }))
+    }))*/
 
     config.devtool = "source-map";
 }
