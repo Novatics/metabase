@@ -175,7 +175,7 @@
   [id]
   {query         su/JSONString}
   (let [card   (api/read-check Card id)
-        result (qp/process-query-and-save-execution! (dissoc query :constraints))
+        result (qp/process-query-and-save-execution! (:dataset_query card) {:executed-by api/*current-user-id*, :context :pulse, :card-id id})
         ba     (binding [render/*include-title* true]
                  (render/render-pulse-card-to-png (p/defaulted-timezone card) card result))]
     {:status 200, :headers {"Content-Type" "image/png"}, :body (ByteArrayInputStream. ba)}))
