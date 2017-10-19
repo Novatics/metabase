@@ -16,6 +16,7 @@
              [card :refer [Card]]
              [database :as database :refer [Database]]
              [query :as query]]
+            [metabase.pulse.render :as render]
             [metabase.query-processor.util :as qputil]
             [metabase.util.schema :as su]
             [schema.core :as s])
@@ -166,6 +167,19 @@
   {:average (or (query/average-execution-time-ms (qputil/query-hash query))
                 (query/average-execution-time-ms (qputil/query-hash (assoc query :constraints default-query-constraints)))
                 0)})
+
+
+;; Trying to implement a endpoint to process aggregation and return as png
+(api/defendpoint POST "/preview_png/:id"
+  "Get PNG rendering of a `Card` with ID."
+  [id]
+  {query         su/JSONString}
+  (let [card   (api/read-check Card id)
+        query (json/parse-string query keyword)
+        result (qp/process-query-and-save-execution! (dissoc query :constraints)
+        ba     (binding [render/*include-title* true]
+                 (render/render-pulse-card-to-png (p/defaulted-timezone card) card result))]
+    {:status 200, :headers {"Content-Type" "image/png"}, :body (ByteArrayInputStream. ba)}))
 
 (api/define-routes
   (middleware/streaming-json-response (route-fn-name 'POST "/")))
