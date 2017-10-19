@@ -175,8 +175,7 @@
   [id]
   {query         su/JSONString}
   (let [card   (api/read-check Card id)
-        query (json/parse-string query keyword)
-        result (qp/process-query-and-save-execution! (dissoc query :constraints)
+        result (qp/process-query-and-save-execution! (dissoc query :constraints))
         ba     (binding [render/*include-title* true]
                  (render/render-pulse-card-to-png (p/defaulted-timezone card) card result))]
     {:status 200, :headers {"Content-Type" "image/png"}, :body (ByteArrayInputStream. ba)}))
