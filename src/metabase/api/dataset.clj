@@ -9,7 +9,8 @@
             [metabase
              [middleware :as middleware]
              [query-processor :as qp]
-             [util :as u]]
+             [util :as u]
+             [pulse :as p]]
             [metabase.api.common :as api]
             [metabase.api.common.internal :refer [route-fn-name]]
             [metabase.models
@@ -21,7 +22,8 @@
             [metabase.util.schema :as su]
             [schema.core :as s])
   (:import [java.io ByteArrayInputStream ByteArrayOutputStream]
-           org.apache.poi.ss.usermodel.Cell))
+           org.apache.poi.ss.usermodel.Cell
+           java.util.TimeZone))
 
 ;;; ------------------------------------------------------------ Constants ------------------------------------------------------------
 
@@ -178,10 +180,12 @@
   (when-not (= database database/virtual-id)
     (api/read-check Database database))
   ;; add sensible constraints for results limits on our query
-  (let [card   (api/read-check Card id)
-        source-card-id (query->source-card-id query)]
-    (qp/process-query-and-save-execution! (assoc query :constraints default-query-constraints)
-      {:executed-by api/*current-user-id*, :context :ad-hoc, :card-id source-card-id, :nested? (boolean source-card-id)})))
+  (let [card   (api/read-check Card 1)
+        source-card-id (query->source-card-id query)
+    result (qp/process-query-and-save-execution! (assoc query :constraints default-query-constraints) {:executed-by api/*current-user-id*, :context :ad-hoc, :card-id 1})
+    ba     (binding [render/*include-title* true]
+                 (render/render-pulse-card-to-png (p/defaulted-timezone card) card result))]
+      {:status 200, :headers {"Content-Type" "image/png"}, :body (ByteArrayInputStream. ba)}))
 
 (api/define-routes
   (middleware/streaming-json-response (route-fn-name 'POST "/")))
