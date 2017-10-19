@@ -170,15 +170,17 @@
 
 
 ;; Trying to implement a endpoint to process aggregation and return as png
-(api/defendpoint POST "/preview_png/:id"
+(api/defendpoint POST "/preview_png"
   "Get PNG rendering of a `Card` with ID."
-  [id]
-  {query         su/JSONString}
-  (let [card   (api/read-check Card id)
-        result (qp/process-query-and-save-execution! (:dataset_query card) {:executed-by api/*current-user-id*, :context :pulse, :card-id id})
-        ba     (binding [render/*include-title* true]
-                 (render/render-pulse-card-to-png (p/defaulted-timezone card) card result))]
-    {:status 200, :headers {"Content-Type" "image/png"}, :body (ByteArrayInputStream. ba)}))
+  [:as {{:keys [database], :as query} :body}]
+  {database s/Int}
+  ;; don't permissions check the 'database' if it's the virtual database. That database doesn't actually exist :-)
+  (when-not (= database database/virtual-id)
+    (api/read-check Database database))
+  ;; add sensible constraints for results limits on our query
+  (let [source-card-id (query->source-card-id query)]
+    (qp/process-query-and-save-execution! (assoc query :constraints default-query-constraints)
+      {:executed-by api/*current-user-id*, :context :ad-hoc, :card-id source-card-id, :nested? (boolean source-card-id)})))
 
 (api/define-routes
   (middleware/streaming-json-response (route-fn-name 'POST "/")))
