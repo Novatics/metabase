@@ -178,13 +178,10 @@
   (when-not (= database database/virtual-id)
     (api/read-check Database database))
   ;; add sensible constraints for results limits on our query
-  (let [source-card-id (query->source-card-id query)
-      card   (api/read-check Card 1)
-     result (qp/process-query-and-save-execution! (assoc query :constraints default-query-constraints)
-      {:executed-by api/*current-user-id*, :context :ad-hoc, :card-id source-card-id, :nested? (boolean source-card-id)})
-      ba     (binding [render/*include-title* true]
-                 (render/render-pulse-card-to-png (p/defaulted-timezone card) card result))]
-    {:status 200, :headers {"Content-Type" "image/png"}, :body (ByteArrayInputStream. ba)}))
+  (let [card   (api/read-check Card id)
+        source-card-id (query->source-card-id query)]
+    (qp/process-query-and-save-execution! (assoc query :constraints default-query-constraints)
+      {:executed-by api/*current-user-id*, :context :ad-hoc, :card-id source-card-id, :nested? (boolean source-card-id)})))
 
 (api/define-routes
   (middleware/streaming-json-response (route-fn-name 'POST "/")))
