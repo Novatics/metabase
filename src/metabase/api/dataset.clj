@@ -172,7 +172,7 @@
 
 
 ;; Trying to implement a endpoint to process aggregation and return as png
-(api/defendpoint POST "/preview_png"
+(api/defendpoint GET "/preview_png"
   "Get PNG rendering of a `Card` with ID."
   [:as {{:keys [database], :as query} :body}]
   {database s/Int}
