@@ -1,10 +1,7 @@
 ;; -*- comment-column: 70; -*-
 ;; full set of options are here .. https://github.com/technomancy/leiningen/blob/master/sample.project.clj
 
-;; never do this
-(require 'cemerick.pomegranate.aether)
-(cemerick.pomegranate.aether/register-wagon-factory!
- "http" #(org.apache.maven.wagon.providers.http.HttpWagon.))
+
 
 (defproject metabase "metabase-SNAPSHOT"
   :description "Metabase Community Edition"
