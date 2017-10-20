@@ -172,17 +172,17 @@
 
 
 ;; Trying to implement a endpoint to process aggregation and return as png
-(api/defendpoint POST "/preview_png"
+(api/defendpoint GET "/preview_png/:id"
   "Get PNG rendering of a `Card` with ID."
-  [:as {{:keys [database], :as query} :body}]
+  [id :as {{:keys [database], :as query} :body}]
   {database s/Int}
   ;; don't permissions check the 'database' if it's the virtual database. That database doesn't actually exist :-)
   (when-not (= database database/virtual-id)
     (api/read-check Database database))
   ;; add sensible constraints for results limits on our query
-  (let [card   (api/read-check Card 1)
+  (let [card   (api/read-check Card id)
         source-card-id (query->source-card-id query)
-    result (qp/process-query-and-save-execution! (assoc query :constraints default-query-constraints) {:executed-by api/*current-user-id*, :context :ad-hoc, :card-id 1})
+    result (qp/process-query-and-save-execution! (assoc query :constraints default-query-constraints) {:executed-by api/*current-user-id*, :context :ad-hoc, :card-id id})
     ba     (binding [render/*include-title* true]
                  (render/render-pulse-card-to-png (p/defaulted-timezone card) card result))]
       {:status 200, :headers {"Content-Type" "image/png"}, :body (ByteArrayInputStream. ba)}))
