@@ -4,7 +4,7 @@
             [clojure.data.csv :as csv]
             [clojure.string :as str]
             [clojure.tools.logging :as log]
-            [compojure.core :refer [POST]]
+            [compojure.core :refer [POST GET]]
             [dk.ative.docjure.spreadsheet :as spreadsheet]
             [metabase
              [middleware :as middleware]
@@ -172,7 +172,7 @@
 
 
 ;; Trying to implement a endpoint to process aggregation and return as png
-(api/defendpoint GET "/preview_png"
+(api/defendpoint POST "/preview_png"
   "Get PNG rendering of a `Card` with ID."
   [:as {{:keys [database], :as query} :body}]
   {database s/Int}
