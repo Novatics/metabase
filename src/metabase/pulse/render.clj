@@ -561,4 +561,4 @@
 (defn render-pulse-fixed-type-card-to-png
   "Render a PULSE-CARD as a PNG. DATA is the `:data` from a QP result (I think...)"
   ^bytes [timezone pulse-card result]
-  (render-html-to-png (render-pulse-card timezone pulse-card result) card-width))
+  (render-html-to-png (render-pulse-fixed-type-card timezone pulse-card result) card-width))
