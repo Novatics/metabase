@@ -184,7 +184,7 @@
         source-card-id (query->source-card-id query)
     result (qp/process-query-and-save-execution! (assoc query :constraints default-query-constraints) {:executed-by api/*current-user-id*, :context :ad-hoc, :card-id id})
     ba     (binding [render/*include-title* true]
-                 (render/render-pulse-card-to-png (p/defaulted-timezone card) card result))]
+                 (render/render-pulse-fixed-type-card-to-png (p/defaulted-timezone card) card result))]
       {:status 200, :headers {"Content-Type" "image/png"}, :body (ByteArrayInputStream. ba)}))
 
 (api/define-routes

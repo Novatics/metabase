@@ -527,3 +527,38 @@
   "Render a PULSE-CARD as a PNG. DATA is the `:data` from a QP result (I think...)"
   ^bytes [timezone pulse-card result]
   (render-html-to-png (render-pulse-card timezone pulse-card result) card-width))
+
+
+
+
+
+
+
+(defn render-pulse-fixed-type-card
+  "Render a single CARD for a `Pulse` to Hiccup HTML. RESULT is the QP results."
+  [timezone card {:keys [data error]}]
+  [:a {:href   (card-href card)
+       :target "_blank"
+       :style  (style section-style
+                      {:margin          :16px
+                       :margin-bottom   :16px
+                       :display         :block
+                       :text-decoration :none})}
+   (when *include-title*
+     [:table {:style (style {:margin-bottom :8px
+                             :width         :100%})}
+      [:tbody
+       [:tr
+        [:td [:span {:style header-style}
+              (-> card :name h)]]
+        [:td {:style (style {:text-align :right})}
+         (when *include-buttons*
+           [:img {:style (style {:width :16px})
+                  :width 16
+                  :src   (render-image-with-filename "frontend_client/app/assets/img/external_link.png")}])]]]])
+   (render:bar       timezone card data)])
+
+(defn render-pulse-fixed-type-card-to-png
+  "Render a PULSE-CARD as a PNG. DATA is the `:data` from a QP result (I think...)"
+  ^bytes [timezone pulse-card result]
+  (render-html-to-png (render-pulse-card timezone pulse-card result) card-width))
