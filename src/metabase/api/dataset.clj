@@ -187,5 +187,15 @@
                  (render/render-pulse-fixed-type-card-to-png (p/defaulted-timezone card) card result))]
       {:status 200, :headers {"Content-Type" "image/png"}, :body (ByteArrayInputStream. ba)}))
 
+;; Trying to implement a endpoint to process aggregation and return as png
+(api/defendpoint GET "/preview_png/:id"
+  "Get PNG rendering of a `Card` with ID."
+  [id]
+  (let [card   (api/read-check Card id)
+        result (qp/process-query-and-save-execution! (:dataset_query card) {:executed-by api/*current-user-id*, :context :pulse, :card-id id})
+        ba     (binding [render/*include-title* true]
+                 (render/render-pulse-fixed-type-card-to-png (p/defaulted-timezone card) card result))]
+    {:status 200, :headers {"Content-Type" "image/png"}, :body (ByteArrayInputStream. ba)}))
+
 (api/define-routes
   (middleware/streaming-json-response (route-fn-name 'POST "/")))
