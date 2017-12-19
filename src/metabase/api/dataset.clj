@@ -181,11 +181,12 @@
     (api/read-check Database database))
   ;; add sensible constraints for results limits on our query
   (let [card   (api/read-check Card id)
-        source-card-id (query->source-card-id query)
+        ;;source-card-id (query->source-card-id query)
     ;;result (qp/process-query-and-save-execution! (assoc query :constraints default-query-constraints) {:executed-by api/*current-user-id*, :context :ad-hoc, :card-id id})
-    result (qp/process-query-and-save-execution! (:dataset_query card) {:executed-by api/*current-user-id*, :context :pulse, :card-id id})
+    result    (qp/process-query-and-save-execution! (:dataset_query card) {:executed-by api/*current-user-id*, :context :pulse, :card-id id})
+    data      (:data result)
     ba     (binding [render/*include-title* true]
-                 (render/render-pulse-fixed-type-card-to-png (p/defaulted-timezone card) card result))]
+                 (render/render-pulse-fixed-type-card-to-png (p/defaulted-timezone card) card data))]
       {:status 200, :headers {"Content-Type" "image/png"}, :body (ByteArrayInputStream. ba)}))
 
 ;; Trying to implement a endpoint to process aggregation and return as png
