@@ -556,7 +556,26 @@
            [:img {:style (style {:width :16px})
                   :width 16
                   :src   (render-image-with-filename "frontend_client/app/assets/img/external_link.png")}])]]]])
-   (render:bar       timezone card data)])
+   (try
+     (when error
+       (throw (Exception. (str "Card has errors: " error))))
+     (case (detect-pulse-card-type card data)
+       :empty     (render:empty     card data)
+       :scalar    (render:scalar    timezone card data)
+       :sparkline (render:sparkline timezone card data)
+       :bar       (render:bar       timezone card data)
+       :table     (render:table     timezone card data)
+       [:div {:style (style font-style
+                            {:color       "#F9D45C"
+                             :font-weight 700})}
+        "We were unable to display this card." [:br] "Please view this card in Metabase."])
+     (catch Throwable e
+       (log/warn "Pulse card render error:" e)
+       [:div {:style (style font-style
+                            {:color       "#EF8C8C"
+                             :font-weight 700
+                             :padding     :16px})}
+        "An error occurred while displaying this card."]))])
 
 (defn render-pulse-fixed-type-card-to-png
   "Render a PULSE-CARD as a PNG. DATA is the `:data` from a QP result (I think...)"
